@@ -40,4 +40,5 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 start /home/ubuntu/geekfinder/dist/main.js --name "geekfinder"  
+            pm2 stop geekfinder
+            pm2 start geekfinder 
