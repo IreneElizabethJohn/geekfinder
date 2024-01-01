@@ -21,6 +21,12 @@ jobs:
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
 
+      - name: Debug SSH issues
+        run: |
+          ls -al ${{ secrets.EC2_SSH_KEY }}
+          cat ${{ secrets.EC2_SSH_KEY }}
+          ssh -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} 'pwd'
+
       - name: Restart Node.js Application
         run: |
           ssh -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} 'cd ${{ secrets.TARGET_DIR }} && pm2:restart:app'
