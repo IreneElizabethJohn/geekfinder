@@ -41,4 +41,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             pm2 stop geekfinder
-            pm2 start geekfinder 
+            pm2 start /home/ubuntu/geekfinder/main.js --name "geekfinder"
