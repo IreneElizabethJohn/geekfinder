@@ -20,3 +20,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
+
+      - name: Restart Node.js Application
+        run: |
+          ssh -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} 'cd ${{ secrets.TARGET_DIR }} && pm2:restart:app'
