@@ -1,26 +1,47 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { UserSettings } from './UserSettings.schema';
 import { Post } from './Post.schema';
+import { Education, Experience } from 'src/users/dto/UpdateUser.dto';
+import { Following, Followers } from 'src/users/dto/followUser.dto';
 
 @Schema()
 export class User {
   @Prop({ required: true, unique: true })
-  username: string;
+  email: string;
   @Prop({ required: false })
   displayName?: string;
   @Prop({ required: false })
   avatarUrl?: string;
-  @Prop({ required: false })
-  email?: string;
   @Prop({ required: true })
   password: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'UserSettings' })
-  settings?: UserSettings;
+  @Prop({ required: false })
+  bio?: string;
+  @Prop({ required: false })
+  experience?: Experience[];
+  @Prop({ required: false })
+  education?: Education[];
+  @Prop({ default: false, required: true })
+  isDeleted: boolean;
+  @Prop({
+    required: false,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  })
+  following: Following[];
+  @Prop({
+    required: false,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  })
+  followers: Followers[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }] })
-  posts?: Post[];
+  relevantPosts?: Post[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.set('timestamps', true);
+UserSchema.set('toJSON', {
+  transform(doc, ret, options) {
+    delete ret.password;
+    delete ret.isDeleted;
+  },
+});

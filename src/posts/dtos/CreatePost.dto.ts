@@ -1,17 +1,19 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
-  title: string;
+  ownerId: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
-  contents: string;
+  content: string;
 
   @IsString()
-  @IsNotEmpty()
-  userId: string;
+  @IsOptional()
+  key?: string;
+
+  @IsString()
+  type: string;
 }

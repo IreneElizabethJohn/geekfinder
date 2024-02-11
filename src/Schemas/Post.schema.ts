@@ -3,8 +3,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema()
 export class Post {
   @Prop({ required: true })
-  title: string;
+  ownerId: string;
   @Prop({ required: true })
-  contents: string;
+  content: string;
+  @Prop({ required: false })
+  imageUrl: string;
+  @Prop({ required: true })
+  type: string;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);
+PostSchema.set('timestamps', true);

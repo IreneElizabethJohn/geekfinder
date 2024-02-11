@@ -5,7 +5,6 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
-  isBoolean,
 } from 'class-validator';
 
 export class CreateUserSettingsDto {
@@ -24,7 +23,7 @@ export class CreateUserSettingsDto {
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
-  username: string;
+  email: string;
 
   @IsString()
   @IsOptional()
@@ -33,6 +32,10 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
 
   @IsOptional()
   @ValidateNested()
