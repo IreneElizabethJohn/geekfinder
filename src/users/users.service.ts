@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { Connection, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from 'src/Schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { UpdateUserDto } from './dto/UpdateUser.dto';
 import { UserSettings } from 'src/Schemas/UserSettings.schema';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { PostsService } from 'src/posts/posts.service';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +16,7 @@ export class UsersService {
     @InjectModel(UserSettings.name)
     private userSettingsModel: Model<UserSettings>,
     @InjectConnection() private readonly connection: mongoose.Connection,
+    private postService: PostsService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -47,8 +48,8 @@ export class UsersService {
       .populate(['settings', 'posts']);
   }
 
-  getUserById(id: string) {
-    return this.userModel
+  async getUserById(id: string) {
+    const userDetails: any = await this.userModel
       .findOne({ _id: id, isDeleted: false })
       .select({ password: 0 })
       .populate([
@@ -61,6 +62,9 @@ export class UsersService {
           select: 'displayName avatarUrl',
         },
       ]);
+
+    const posts = await this.postService.getPosts(id);
+    return { ...userDetails._doc, posts };
   }
 
   updateUser(id: string, updateUserDto: UpdateUserDto) {

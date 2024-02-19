@@ -9,6 +9,8 @@ import {
 } from 'src/Schemas/UserSettings.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/configs/jwt.config';
+import { PostsService } from 'src/posts/posts.service';
+import { Post, PostSchema } from 'src/Schemas/Post.schema';
 
 @Module({
   imports: [
@@ -21,6 +23,10 @@ import { jwtConstants } from 'src/configs/jwt.config';
         name: UserSettings.name,
         schema: UserSettingsSchema,
       },
+      {
+        name: Post.name,
+        schema: PostSchema,
+      },
     ]),
     JwtModule.register({
       global: true,
@@ -28,7 +34,7 @@ import { jwtConstants } from 'src/configs/jwt.config';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [UsersService],
+  providers: [UsersService, PostsService],
   controllers: [UsersController],
 })
 export class UsersModule {}

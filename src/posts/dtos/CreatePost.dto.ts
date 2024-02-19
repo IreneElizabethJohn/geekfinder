@@ -17,3 +17,25 @@ export class CreatePostDto {
   @IsString()
   type: string;
 }
+
+export class Comments {
+  owner: string;
+  comment: string;
+  createdAt: Date;
+}
+
+export class CommentDto {
+  userId: string;
+  comment: string;
+}
+
+export class addLikeDto {
+  userId: string;
+}
+export class addJoinReqDto {
+  userId: string;
+}
+
+export class getPostsDto {
+  ownerId?: string;
+}
