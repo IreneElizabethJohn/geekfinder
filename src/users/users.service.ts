@@ -108,4 +108,19 @@ export class UsersService {
       console.error(error);
     }
   }
+  async getFeedPosts(id: string) {
+    const feed = await this.userModel
+      .findOne({ _id: id, isDeleted: false })
+      .select({ relevantPosts: 1 })
+      .populate({
+        path: 'relevantPosts',
+        populate: {
+          path: 'ownerId',
+          select: 'displayName avatarUrl',
+        },
+      })
+      .sort('-relevantPosts.createdAt');
+
+    return feed;
+  }
 }

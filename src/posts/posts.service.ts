@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Post } from 'src/Schemas/Post.schema';
 import { CommentDto, CreatePostDto } from './dtos/CreatePost.dto';
 import { User } from 'src/Schemas/User.schema';
 import * as AWS from 'aws-sdk';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Injectable()
 export class PostsService {
@@ -30,7 +31,7 @@ export class PostsService {
     });
     return { presignedPUTURL, key };
   }
-
+  @UseGuards(AuthGuard)
   async createPost(createPostDto: CreatePostDto) {
     let { ownerId, type, content, key } = createPostDto;
     const newPost = new this.postModel({
@@ -42,15 +43,32 @@ export class PostsService {
         : {}),
     });
     const savedPost = await newPost.save();
+    const followList = await this.userModel
+      .findById(createPostDto.ownerId)
+      .select({ followers: 1 });
+
+    const result = await this.userModel.updateMany(
+      { _id: { $in: followList.followers } },
+      {
+        $push: {
+          relevantPosts: {
+            $each: [savedPost._id],
+            $position: 0,
+            $slice: 200,
+          },
+        },
+      },
+    );
     return savedPost;
   }
-
+  @UseGuards(AuthGuard)
   getPosts(ownerId?: string) {
-    return this.postModel
-      .find({ ownerId: ownerId })
-      .populate([{ path: 'ownerId', select: 'avatarUrl displayName' }]);
+    return this.postModel.find({ ownerId: ownerId }).populate([
+      { path: 'ownerId', select: 'avatarUrl displayName' },
+      { path: 'joinRequests', select: 'avatarUrl displayName' },
+    ]);
   }
-
+  @UseGuards(AuthGuard)
   getComments(postId) {
     return this.postModel
       .findById(postId)
@@ -68,7 +86,7 @@ export class PostsService {
     );
     return true;
   }
-
+  @UseGuards(AuthGuard)
   async addComments(postId: string, commentDto: CommentDto) {
     const payload: any = {
       ...commentDto,
@@ -84,7 +102,7 @@ export class PostsService {
     );
     return true;
   }
-
+  @UseGuards(AuthGuard)
   async addJoinRequests(postId: string, userId: string) {
     await this.postModel.findOneAndUpdate(
       { _id: postId },

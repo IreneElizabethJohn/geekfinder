@@ -31,7 +31,7 @@ export class Post {
     required: false,
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   })
-  joinRequests: joinRequests[];
+  joinRequests: joinRequest[];
 }
 export const PostSchema = SchemaFactory.createForClass(Post);
 PostSchema.set('timestamps', true);
@@ -39,6 +39,6 @@ PostSchema.set('timestamps', true);
 class Like {
   userId: mongoose.Schema.Types.ObjectId;
 }
-class joinRequests {
+class joinRequest {
   userId: mongoose.Schema.Types.ObjectId;
 }
