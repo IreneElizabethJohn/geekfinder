@@ -6,17 +6,22 @@ import { Comments } from 'src/posts/dtos/CreatePost.dto';
 export class Post {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   ownerId: mongoose.Types.ObjectId;
+
   @Prop({ required: true })
   content: string;
+
   @Prop({ required: false })
   imageUrl: string;
+
   @Prop({ required: true })
   type: string;
+
   @Prop({
     required: false,
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   })
   likes: Like[];
+
   @Prop({
     required: false,
     type: [
@@ -27,11 +32,15 @@ export class Post {
     ],
   })
   comments: Comments[];
+
   @Prop({
     required: false,
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   })
   joinRequests: joinRequest[];
+
+  @Prop({ required: false })
+  projectName: string;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);
 PostSchema.set('timestamps', true);

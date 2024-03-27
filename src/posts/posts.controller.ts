@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -65,5 +66,13 @@ export class PostsController {
   @Get()
   getPosts(@Query() query: getPostsDto) {
     return this.postService.getPosts(query.ownerId);
+  }
+
+  @Delete(':postId/joinRequests/:userId')
+  removeJoinRequest(
+    @Param('postId') postId: string,
+    @Param('userId') userId: string,
+  ) {
+    this.postService.removeJoinRequest(postId, userId);
   }
 }

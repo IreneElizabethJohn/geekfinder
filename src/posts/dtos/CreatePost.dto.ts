@@ -16,6 +16,10 @@ export class CreatePostDto {
 
   @IsString()
   type: string;
+
+  @IsString()
+  @IsOptional()
+  projectName?: string;
 }
 
 export class Comments {

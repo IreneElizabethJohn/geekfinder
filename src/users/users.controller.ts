@@ -132,6 +132,11 @@ export class UsersController {
     return this.usersService.getFeedPosts(id);
   }
 
+  @Get(':id/projects')
+  getProjects(@Param('id') id: string) {
+    return this.usersService.getProjects(id);
+  }
+
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     const idValid = mongoose.Types.ObjectId.isValid(id);

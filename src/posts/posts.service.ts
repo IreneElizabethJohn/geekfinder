@@ -1,4 +1,4 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { ConflictException, Injectable, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Post } from 'src/Schemas/Post.schema';
@@ -6,6 +6,8 @@ import { CommentDto, CreatePostDto } from './dtos/CreatePost.dto';
 import { User } from 'src/Schemas/User.schema';
 import * as AWS from 'aws-sdk';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ProjectsService } from 'src/projects/projects.service';
+import { Project } from 'src/Schemas/Project.schema';
 
 @Injectable()
 export class PostsService {
@@ -13,6 +15,7 @@ export class PostsService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<Post>,
     @InjectModel(User.name) private userModel: Model<User>,
+    private projectService: ProjectsService,
   ) {
     const ObjectId = mongoose.Types.ObjectId;
     this.s3 = new AWS.S3({
@@ -33,8 +36,18 @@ export class PostsService {
   }
   @UseGuards(AuthGuard)
   async createPost(createPostDto: CreatePostDto) {
-    let { ownerId, type, content, key } = createPostDto;
-    const newPost = new this.postModel({
+    let { ownerId, type, content, key, projectName } = createPostDto;
+
+    const existingProjectName = await this.postModel.findOne({
+      projectName: projectName,
+      ownerId: ownerId,
+    });
+
+    if (existingProjectName) {
+      throw new ConflictException('Project name already exists');
+    }
+
+    const newPost: any = new this.postModel({
       ownerId,
       type,
       content,
@@ -42,12 +55,15 @@ export class PostsService {
         ? { imageUrl: `${process.env.POSTS_IMAGE_BASE_URL}/${key}` }
         : {}),
     });
+    if (projectName) {
+      newPost.projectName = projectName;
+    }
     const savedPost = await newPost.save();
     const followList = await this.userModel
       .findById(createPostDto.ownerId)
       .select({ followers: 1 });
 
-    const result = await this.userModel.updateMany(
+    await this.userModel.updateMany(
       { _id: { $in: followList.followers } },
       {
         $push: {
@@ -59,14 +75,20 @@ export class PostsService {
         },
       },
     );
+    if (type == 'P') {
+      this.projectService.createProject(projectName, ownerId);
+    }
     return savedPost;
   }
   @UseGuards(AuthGuard)
   getPosts(ownerId?: string) {
-    return this.postModel.find({ ownerId: ownerId }).populate([
-      { path: 'ownerId', select: 'avatarUrl displayName' },
-      { path: 'joinRequests', select: 'avatarUrl displayName' },
-    ]);
+    return this.postModel
+      .find({ ownerId: ownerId })
+      .populate([
+        { path: 'ownerId', select: 'avatarUrl displayName' },
+        { path: 'joinRequests', select: 'avatarUrl displayName' },
+      ])
+      .sort('-createdAt');
   }
   @UseGuards(AuthGuard)
   getComments(postId) {
@@ -76,6 +98,7 @@ export class PostsService {
       .populate({ path: 'comments.owner', select: 'avatarUrl displayName' });
   }
 
+  @UseGuards(AuthGuard)
   async addLikes(postId: string, userId: string) {
     await this.postModel.findOneAndUpdate(
       { _id: postId },
@@ -86,6 +109,7 @@ export class PostsService {
     );
     return true;
   }
+
   @UseGuards(AuthGuard)
   async addComments(postId: string, commentDto: CommentDto) {
     const payload: any = {
@@ -102,6 +126,7 @@ export class PostsService {
     );
     return true;
   }
+
   @UseGuards(AuthGuard)
   async addJoinRequests(postId: string, userId: string) {
     await this.postModel.findOneAndUpdate(
@@ -112,5 +137,15 @@ export class PostsService {
       },
     );
     return true;
+  }
+  @UseGuards(AuthGuard)
+  async removeJoinRequest(postId: string, userId: string) {
+    const updatedPost = await this.postModel.findOneAndUpdate(
+      { _id: postId },
+      { $pull: { joinRequests: userId } },
+      { new: true },
+    );
+
+    return updatedPost;
   }
 }

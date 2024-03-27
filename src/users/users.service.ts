@@ -1,11 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/Schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { UpdateUserDto } from './dto/UpdateUser.dto';
-import { UserSettings } from 'src/Schemas/UserSettings.schema';
 import * as bcrypt from 'bcrypt';
 import { PostsService } from 'src/posts/posts.service';
 
@@ -13,9 +11,6 @@ import { PostsService } from 'src/posts/posts.service';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(UserSettings.name)
-    private userSettingsModel: Model<UserSettings>,
-    @InjectConnection() private readonly connection: mongoose.Connection,
     private postService: PostsService,
   ) {}
 
@@ -122,5 +117,12 @@ export class UsersService {
       .sort('-relevantPosts.createdAt');
 
     return feed;
+  }
+
+  async getProjects(ownerId: string) {
+    return await this.userModel
+      .findById(ownerId)
+      .select({ projects: 1 })
+      .populate({ path: 'projects' });
   }
 }

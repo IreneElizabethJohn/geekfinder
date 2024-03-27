@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TasksService } from './tasks.service';
+import { TasksController } from './tasks.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from 'src/Schemas/Post.schema';
-import { PostsController } from './posts.controller';
-import { PostsService } from './posts.service';
+import { Project, ProjectSchema } from 'src/Schemas/Project.schema';
+import { Task, TaskSchema } from 'src/Schemas/Task.schema';
 import { User, UserSchema } from 'src/Schemas/User.schema';
-import { ProjectSchema, Project } from 'src/Schemas/Project.schema';
-import { ProjectsService } from 'src/projects/projects.service';
 
 @Module({
   imports: [
@@ -15,16 +15,20 @@ import { ProjectsService } from 'src/projects/projects.service';
         schema: PostSchema,
       },
       {
-        name: User.name,
-        schema: UserSchema,
+        name: Task.name,
+        schema: TaskSchema,
       },
       {
         name: Project.name,
         schema: ProjectSchema,
       },
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
     ]),
   ],
-  providers: [PostsService, ProjectsService],
-  controllers: [PostsController],
+  providers: [TasksService],
+  controllers: [TasksController],
 })
-export class PostsModule {}
+export class TasksModule {}
