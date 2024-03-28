@@ -16,6 +16,11 @@ export class Experience {
   toDate?: Date;
 }
 
+export class SocialLink {
+  github: string;
+  linkedIn: string;
+}
+
 export class Education {
   @IsOptional()
   @IsString()
@@ -46,4 +51,7 @@ export class UpdateUserDto {
   @ValidateNested()
   @IsArray()
   education?: Education[];
+
+  @IsOptional()
+  socialLinks?: SocialLink;
 }

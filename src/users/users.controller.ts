@@ -126,6 +126,7 @@ export class UsersController {
   ) {
     return await this.usersService.insertFollower(id, followUserDto.followeeId);
   }
+
   @UseGuards(AuthGuard)
   @Get(':id/feed')
   async getFeedPosts(@Param('id') id: string) {
