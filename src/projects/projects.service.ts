@@ -104,7 +104,6 @@ export class ProjectsService {
     });
 
     if (indexToRemove === -1) {
-      // If the collaborator is not found in the list, handle the error
       throw new Error('Collaborator not found in the project');
     }
 
