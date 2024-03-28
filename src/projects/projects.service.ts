@@ -124,6 +124,7 @@ export class ProjectsService {
       title: projectName,
       owner: ownerId,
     });
+
     const projectId = projectToBeDeleted._id;
     await this.projectModel.findByIdAndDelete(projectId);
     await this.postModel.findOneAndDelete({
