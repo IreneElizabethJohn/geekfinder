@@ -16,7 +16,6 @@ export class TasksService {
 
   async createTask(createTaskDto: CreateTaskDto, projectId: string) {
     try {
-      console.log(projectId);
       const existingTask = await this.taskModel.findOne({
         title: createTaskDto.title,
       });

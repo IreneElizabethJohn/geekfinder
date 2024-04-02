@@ -23,7 +23,7 @@ export class Project {
   })
   collaborators: Collaborator[];
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Task' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Task' })
   tasks: mongoose.Types.ObjectId[];
 }
 export const ProjectSchema = SchemaFactory.createForClass(Project);

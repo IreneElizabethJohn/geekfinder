@@ -37,14 +37,15 @@ export class PostsService {
   @UseGuards(AuthGuard)
   async createPost(createPostDto: CreatePostDto) {
     let { ownerId, type, content, key, projectName } = createPostDto;
+    if (type == 'P') {
+      const existingProjectName = await this.postModel.findOne({
+        projectName: projectName,
+        ownerId: ownerId,
+      });
 
-    const existingProjectName = await this.postModel.findOne({
-      projectName: projectName,
-      ownerId: ownerId,
-    });
-
-    if (existingProjectName) {
-      throw new ConflictException('Project name already exists');
+      if (existingProjectName) {
+        throw new ConflictException('Project name already exists');
+      }
     }
 
     const newPost: any = new this.postModel({
